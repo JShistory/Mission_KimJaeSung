@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -60,14 +61,15 @@ public class LikeablePersonController {
         return "usr/likeablePerson/list";
     }
 
-    @PostMapping("/delete")
-    public String delete(@Valid AddForm addForm){
-        RsData<LikeablePerson> deleteRsData = likeablePersonService.like(rq.getMember(), addForm.getUsername(), addForm.getAttractiveTypeCode());
+
+    @GetMapping("/delete/{number}")
+    public String delete(@PathVariable int number){
+        RsData<LikeablePerson> deleteRsData = likeablePersonService.removePerson(rq.getMember(),number);
 
         if (deleteRsData.isFail()) {
-            return rq.historyBack(deleteRsData);
+            return rq.redirectWithMsg("/likeablePerson/list","삭제실패");
         }
 
-        return rq.redirectWithMsg("/likeablePerson/list", deleteRsData);
+        return rq.redirectWithMsg("/likeablePerson/list", "삭제성공");
     }
 }
