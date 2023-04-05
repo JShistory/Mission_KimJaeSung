@@ -50,21 +50,5 @@ public class LikeablePersonService {
         return likeablePersonRepository.findByFromInstaMemberId(fromInstaMemberId);
     }
 
-    @Transactional
-    public RsData<LikeablePerson> removePerson(Member member, int id){
-        if ( member.hasConnectedInstaMember() == false ) {
-            return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
-        }
-
-        Optional<LikeablePerson> removePersonData = likeablePersonRepository.findById(id);
-
-        Long instaId = removePersonData.get().getFromInstaMember().getId();
-        Long memberId = member.getInstaMember().getId();
-        if(removePersonData.isEmpty() && instaId != memberId){
-            return RsData.of("F-3", "해당 권한이 없습니다.");
-        }
-        likeablePersonRepository.delete(removePersonData.get());
-        return RsData.of("S-1", "삭제 완료");
-    }
 
 }
