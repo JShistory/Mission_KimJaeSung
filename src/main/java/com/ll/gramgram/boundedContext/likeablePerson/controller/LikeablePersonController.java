@@ -62,5 +62,14 @@ public class LikeablePersonController {
     }
 
 
+    @GetMapping("/delete/{number}")
+    public String delete(@PathVariable int number){
+        RsData<LikeablePerson> deleteRsData = likeablePersonService.removePerson(rq.getMember(),number);
 
+        if (deleteRsData.isFail()) {
+            return rq.redirectWithMsg("/likeablePerson/list","삭제실패");
+        }
+
+        return rq.redirectWithMsg("/likeablePerson/list", "삭제성공");
+    }
 }
