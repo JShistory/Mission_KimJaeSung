@@ -59,4 +59,15 @@ public class LikeablePersonController {
 
         return "usr/likeablePerson/list";
     }
+
+    @PostMapping("/delete")
+    public String delete(@Valid AddForm addForm){
+        RsData<LikeablePerson> deleteRsData = likeablePersonService.like(rq.getMember(), addForm.getUsername(), addForm.getAttractiveTypeCode());
+
+        if (deleteRsData.isFail()) {
+            return rq.historyBack(deleteRsData);
+        }
+
+        return rq.redirectWithMsg("/likeablePerson/list", deleteRsData);
+    }
 }
