@@ -20,7 +20,7 @@ import java.util.Optional;
 public class LikeablePersonService {
     private final LikeablePersonRepository likeablePersonRepository;
     private final InstaMemberService instaMemberService;
-
+    private boolean change;
     @Transactional
     public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode, Rq rq) {
         List<LikeablePerson> fromLikeablePeople = rq.getMember().getInstaMember().getFromLikeablePeople();
@@ -35,22 +35,18 @@ public class LikeablePersonService {
             return RsData.of("F-4", "이미 호감표시가 10명입니다.");
         }
         for (LikeablePerson a : fromLikeablePeople) {
-            if (a.getToInstaMemberUsername().equals(username)) {
+            if (a.getToInstaMemberUsername().equals(username) && a.getAttractiveTypeCode() == attractiveTypeCode) {
                 return RsData.of("F-3", "이미 이 사람은 호감목록에 있습니다");
+
             }
+            change = true;
+
         }
 
         InstaMember fromInstaMember = member.getInstaMember();
         InstaMember toInstaMember = instaMemberService.findByUsernameOrCreate(username).getData();
 
-        LikeablePerson likeablePerson = LikeablePerson
-                .builder()
-                .fromInstaMember(fromInstaMember) // 호감을 표시하는 사람의 인스타 멤버
-                .fromInstaMemberUsername(member.getInstaMember().getUsername()) // 중요하지 않음
-                .toInstaMember(toInstaMember) // 호감을 받는 사람의 인스타 멤버
-                .toInstaMemberUsername(toInstaMember.getUsername()) // 중요하지 않음
-                .attractiveTypeCode(attractiveTypeCode) // 1=외모, 2=능력, 3=성격
-                .build();
+        LikeablePerson likeablePerson = build(fromInstaMember,toInstaMember,member,attractiveTypeCode);
 
         likeablePersonRepository.save(likeablePerson); // 저장
 
@@ -96,7 +92,16 @@ public class LikeablePersonService {
         return RsData.of("S-1", "삭제가능합니다.");
     }
 
-
+    public LikeablePerson build(InstaMember fromInstaMember,InstaMember toInstaMember,Member member, int attractiveTypeCode ){
+        return LikeablePerson
+                .builder()
+                .fromInstaMember(fromInstaMember) // 호감을 표시하는 사람의 인스타 멤버
+                .fromInstaMemberUsername(member.getInstaMember().getUsername()) // 중요하지 않음
+                .toInstaMember(toInstaMember) // 호감을 받는 사람의 인스타 멤버
+                .toInstaMemberUsername(toInstaMember.getUsername()) // 중요하지 않음
+                .attractiveTypeCode(attractiveTypeCode) // 1=외모, 2=능력, 3=성격
+                .build();
+    }
 }
 
 

@@ -9,4 +9,7 @@ import java.util.List;
 public interface LikeablePersonRepository extends JpaRepository<LikeablePerson, Integer> {
     List<LikeablePerson> findByFromInstaMemberId(Long fromInstaMemberId);
     Optional<LikeablePerson> findById(Long fromInstaMemberId);
+    Optional<LikeablePerson> deleteById(Long fromInstaMemberId);
+
+
 }
