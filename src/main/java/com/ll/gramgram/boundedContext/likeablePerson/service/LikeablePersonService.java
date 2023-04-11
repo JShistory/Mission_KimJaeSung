@@ -20,10 +20,13 @@ import java.util.Optional;
 public class LikeablePersonService {
     private final LikeablePersonRepository likeablePersonRepository;
     private final InstaMemberService instaMemberService;
-    private boolean change;
+    private boolean change = false;
+
     @Transactional
     public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode, Rq rq) {
         List<LikeablePerson> fromLikeablePeople = rq.getMember().getInstaMember().getFromLikeablePeople();
+        InstaMember fromInstaMember = null;
+        InstaMember toInstaMember = null;
         if (member.hasConnectedInstaMember() == false) {
             return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
         }
@@ -37,16 +40,15 @@ public class LikeablePersonService {
         for (LikeablePerson a : fromLikeablePeople) {
             if (a.getToInstaMemberUsername().equals(username) && a.getAttractiveTypeCode() == attractiveTypeCode) {
                 return RsData.of("F-3", "이미 이 사람은 호감목록에 있습니다");
-
             }
-            change = true;
+
 
         }
 
-        InstaMember fromInstaMember = member.getInstaMember();
-        InstaMember toInstaMember = instaMemberService.findByUsernameOrCreate(username).getData();
+        fromInstaMember = member.getInstaMember();
+        toInstaMember = instaMemberService.findByUsernameOrCreate(username).getData();
 
-        LikeablePerson likeablePerson = build(fromInstaMember,toInstaMember,member,attractiveTypeCode);
+        LikeablePerson likeablePerson = build(fromInstaMember, toInstaMember, member, attractiveTypeCode);
 
         likeablePersonRepository.save(likeablePerson); // 저장
 
@@ -76,6 +78,7 @@ public class LikeablePersonService {
         return RsData.of("S-1", "%s님에 대한 호감을 취소하였습니다.".formatted(likeCanceledUsername));
     }
 
+
     public RsData canActorDelete(Member actor, LikeablePerson likeablePerson) {
         if (likeablePerson == null) {
             return RsData.of("F-1", "이미 삭제되었습니다.");
@@ -92,7 +95,8 @@ public class LikeablePersonService {
         return RsData.of("S-1", "삭제가능합니다.");
     }
 
-    public LikeablePerson build(InstaMember fromInstaMember,InstaMember toInstaMember,Member member, int attractiveTypeCode ){
+    public LikeablePerson build(InstaMember fromInstaMember, InstaMember toInstaMember, Member member,
+                                int attractiveTypeCode) {
         return LikeablePerson
                 .builder()
                 .fromInstaMember(fromInstaMember) // 호감을 표시하는 사람의 인스타 멤버
