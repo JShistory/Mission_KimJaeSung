@@ -15,7 +15,7 @@
         </div>
     </th:block>
 
-    <span th:text="${likeablePeople.size()}+'/10'"></span>
+    <span th:if="${@rq.member.hasConnectedInstaMember()}" th:text="${likeablePeople.size()}+'/10'"></span>
         <ul>
             <li th:each="likeablePerson: ${likeablePeople}">
                 <span class="toInstaMember_username" th:text="${likeablePerson.toInstaMember.username}"></span>

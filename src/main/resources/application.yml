@@ -3,6 +3,8 @@ spring:
     # Auto Restart
     restart:
       enabled: true
+      additional-exclude: java/**, test/**
+      exclude: static/**, public/**
   profiles:
     active: dev
   datasource:
@@ -19,27 +21,24 @@ spring:
             scope:
             client-name: Kakao
             authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            redirect-uri: '{baseUrl}/{action}/oauth2/code/{registrationId}'
             client-authentication-method: POST
+          google:
+            clientId: 326541986365-vhad7c5815a046ikq494huarem5sk98m.apps.googleusercontent.com
+            clientSecret: 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
+            redirect-uri: '{baseUrl}/{action}/oauth2/code/{registrationId}'
+            client-name: Google
+            scope:
+              - profile
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
-        google:
-          clientId: <your-google-client-id>
-          clientSecret: <your-google-client-secret>
-          scope:
-            - email
-            - profile
-          provider:
-            google:
-              authorizeUrl: https://accounts.google.com/o/oauth2/auth
-              tokenUrl: https://accounts.google.com/o/oauth2/token
-              userInfoUri: https://www.googleapis.com/oauth2/v3/userinfo
-              userNameAttributeName: sub
-  jpa:
+
+
+
     hibernate:
       ddl-auto: create
     properties:

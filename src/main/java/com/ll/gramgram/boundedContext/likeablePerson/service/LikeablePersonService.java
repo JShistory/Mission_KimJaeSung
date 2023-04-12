@@ -24,6 +24,7 @@ public class LikeablePersonService {
 
     @Transactional
     public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode, Rq rq) {
+        System.out.println("attra" + attractiveTypeCode);
         List<LikeablePerson> fromLikeablePeople = rq.getMember().getInstaMember().getFromLikeablePeople();
         InstaMember fromInstaMember = null;
         InstaMember toInstaMember = null;
@@ -41,8 +42,6 @@ public class LikeablePersonService {
             if (a.getToInstaMemberUsername().equals(username) && a.getAttractiveTypeCode() == attractiveTypeCode) {
                 return RsData.of("F-3", "이미 이 사람은 호감목록에 있습니다");
             }
-
-
         }
 
         fromInstaMember = member.getInstaMember();
