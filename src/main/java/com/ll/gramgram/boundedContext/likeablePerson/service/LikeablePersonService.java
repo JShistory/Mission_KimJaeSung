@@ -38,15 +38,19 @@ public class LikeablePersonService {
         if (fromLikeablePeople.size() >= 10) {
             return RsData.of("F-4", "이미 호감표시가 10명입니다.");
         }
-        for (LikeablePerson a : fromLikeablePeople) {
-            if (a.getToInstaMemberUsername().equals(username) && a.getAttractiveTypeCode() == attractiveTypeCode) {
-                return RsData.of("F-3", "이미 이 사람은 호감목록에 있습니다");
-            }
-        }
-
         fromInstaMember = member.getInstaMember();
         toInstaMember = instaMemberService.findByUsernameOrCreate(username).getData();
 
+        LikeablePerson fromLikeablePerson = fromLikeablePeople
+                .stream()
+                .filter(e -> e.getToInstaMember().getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
+        if(fromLikeablePerson != null){
+            fromLikeablePerson.setAttractiveTypeCode(fromLikeablePerson.getAttractiveTypeCode());
+            likeablePersonRepository.save(fromLikeablePerson);
+            return RsData.of("S-3","호감사유를 성공적으로 변경합니다.");
+        }
         LikeablePerson likeablePerson = build(fromInstaMember, toInstaMember, member, attractiveTypeCode);
 
         likeablePersonRepository.save(likeablePerson); // 저장
