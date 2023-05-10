@@ -1,5 +1,7 @@
 package com.ll.gramgram.boundedContext.likeablePerson.controller;
 
+import static com.ll.gramgram.boundedContext.instaMember.entity.QInstaMember.instaMember;
+
 import com.ll.gramgram.base.rq.Rq;
 import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
@@ -7,6 +9,8 @@ import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.likeablePerson.service.LikeablePersonService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +20,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Controller
 @RequestMapping("/usr/likeablePerson")
@@ -47,7 +49,8 @@ public class LikeablePersonController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/like")
     public String like(@Valid LikeForm likeForm) {
-        RsData<LikeablePerson> rsData = likeablePersonService.like(rq.getMember(), likeForm.getUsername(), likeForm.getAttractiveTypeCode());
+        RsData<LikeablePerson> rsData = likeablePersonService.like(rq.getMember(), likeForm.getUsername(),
+                likeForm.getAttractiveTypeCode());
 
         if (rsData.isFail()) {
             return rq.historyBack(rsData);
@@ -78,11 +81,13 @@ public class LikeablePersonController {
 
         RsData canDeleteRsData = likeablePersonService.canCancel(rq.getMember(), likeablePerson);
 
-        if (canDeleteRsData.isFail()) return rq.historyBack(canDeleteRsData);
+        if (canDeleteRsData.isFail())
+            return rq.historyBack(canDeleteRsData);
 
         RsData deleteRsData = likeablePersonService.cancel(likeablePerson);
 
-        if (deleteRsData.isFail()) return rq.historyBack(deleteRsData);
+        if (deleteRsData.isFail())
+            return rq.historyBack(deleteRsData);
 
         return rq.redirectWithMsg("/usr/likeablePerson/list", deleteRsData);
     }
@@ -94,7 +99,8 @@ public class LikeablePersonController {
 
         RsData canModifyRsData = likeablePersonService.canModify(rq.getMember(), likeablePerson);
 
-        if (canModifyRsData.isFail()) return rq.historyBack(canModifyRsData);
+        if (canModifyRsData.isFail())
+            return rq.historyBack(canModifyRsData);
 
         model.addAttribute("likeablePerson", likeablePerson);
 
@@ -113,7 +119,8 @@ public class LikeablePersonController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/modify/{id}")
     public String modify(@PathVariable Long id, @Valid ModifyForm modifyForm) {
-        RsData<LikeablePerson> rsData = likeablePersonService.modifyAttractive(rq.getMember(), id, modifyForm.getAttractiveTypeCode());
+        RsData<LikeablePerson> rsData = likeablePersonService.modifyAttractive(rq.getMember(), id,
+                modifyForm.getAttractiveTypeCode());
 
         if (rsData.isFail()) {
             return rq.historyBack(rsData);
@@ -124,49 +131,25 @@ public class LikeablePersonController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/toList")
-    public String showToList(Model model, String gender, @RequestParam(defaultValue = "0") int attractiveTypeCode, @RequestParam(defaultValue = "1") int sortCode) {
+    public String showToList(Model model, String gender, @RequestParam(defaultValue = "0") int attractiveTypeCode,
+                             @RequestParam(defaultValue = "1") int sortCode) {
         InstaMember instaMember = rq.getMember().getInstaMember();
-
         // 인스타인증을 했는지 체크
         if (instaMember != null) {
             // 해당 인스타회원이 좋아하는 사람들 목록
             Stream<LikeablePerson> likeablePeopleStream = instaMember.getToLikeablePeople().stream();
 
             if (gender != null) {
-                // likeablePeopleStream = likeablePeopleStream.filter();
+                likeablePeopleStream = likeablePeopleStream.filter(
+                        li1 -> li1.getFromInstaMember().getGender().equalsIgnoreCase(gender));
             }
-
             if (attractiveTypeCode != 0) {
-                // likeablePeopleStream = likeablePeopleStream.filter();
+                likeablePeopleStream = likeablePeopleStream.filter(li1-> li1.getAttractiveTypeCode()==attractiveTypeCode);
             }
-
-            switch (sortCode) {
-                case 1:
-                    // likeablePeopleStream = likeablePeopleStream.sorted(??);
-                    break;
-                case 2:
-                    // likeablePeopleStream = likeablePeopleStream.sorted(??);
-                    break;
-                case 3:
-                    // likeablePeopleStream = likeablePeopleStream.sorted(??);
-                    break;
-                case 4:
-                    // likeablePeopleStream = likeablePeopleStream.sorted(??);
-                    break;
-                case 5:
-                    // likeablePeopleStream = likeablePeopleStream.sorted(??);
-                    break;
-                case 6:
-                    // likeablePeopleStream = likeablePeopleStream.sorted(??);
-                    break;
-
-            }
-
             List<LikeablePerson> likeablePeople = likeablePeopleStream.collect(Collectors.toList());
-
             model.addAttribute("likeablePeople", likeablePeople);
         }
-
         return "usr/likeablePerson/toList";
+
     }
 }
