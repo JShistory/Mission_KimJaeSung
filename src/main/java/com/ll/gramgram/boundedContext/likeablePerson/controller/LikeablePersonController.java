@@ -129,5 +129,27 @@ public class LikeablePersonController {
         return rq.redirectWithMsg("/usr/likeablePerson/list", rsData);
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/toList")
+    public String showToList(Model model, String gender, @RequestParam(defaultValue = "0") int attractiveTypeCode,
+                             @RequestParam(defaultValue = "1") int sortCode) {
+        InstaMember instaMember = rq.getMember().getInstaMember();
+        // 인스타인증을 했는지 체크
+        if (instaMember != null) {
+            // 해당 인스타회원이 좋아하는 사람들 목록
+            Stream<LikeablePerson> likeablePeopleStream = instaMember.getToLikeablePeople().stream();
 
+            if (gender != null) {
+                likeablePeopleStream = likeablePeopleStream.filter(
+                        li1 -> li1.getFromInstaMember().getGender().equalsIgnoreCase(gender));
+            }
+            if (attractiveTypeCode != 0) {
+                likeablePeopleStream = likeablePeopleStream.filter(li1-> li1.getAttractiveTypeCode()==attractiveTypeCode);
+            }
+            List<LikeablePerson> likeablePeople = likeablePeopleStream.collect(Collectors.toList());
+            model.addAttribute("likeablePeople", likeablePeople);
+        }
+        return "usr/likeablePerson/toList";
+
+    }
 }
