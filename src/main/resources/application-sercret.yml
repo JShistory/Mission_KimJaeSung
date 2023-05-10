@@ -1,9 +1,0 @@
-spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          naver:
-            clientId: rEJlBZorr4OXLaMveQc6
-            client-secret: 3B_aeo8NvF
-          kakao: 095ef5f1f9e96f6e8d09611b03869227
